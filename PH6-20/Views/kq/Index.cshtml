@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<div>
+    <input type="radio" name="state" id="state1" />全部
+    <input type="radio" name="state" id="state2" />正常
+    <input type="radio" name="state" id="state3" />异常
+    开始时间
+    <input type="date" id="ctime" />
+    签退时间
+    <input type="date" id="ttime" />
+    <input type="button" value="查询" onclick="cha()" />
+    <input type="button" value="导出" href="/kq/dao" />
+</div>
+<table class="table table-bordered">
+    <tr>
+        <td>状态</td>
+        <td>部门</td>
+        <td>工号</td>
+        <td>姓名</td>
+        <td>签到时间</td>
+        <td>签退时间</td>
+        <td>备注</td>
+    </tr>
+    <tbody id="tb">
+    </tbody>
+</table>
+<div id="ye">
+
+</div>
+<script>
+    $(function () {
+        show();
+    })
+
+
+    function show() {
+        var st = "";
+        if ($("#state1").prop("checked") == true) {
+            st = "";
+        }
+        if ($("#state2").prop("checked") == true) {
+            st = "正常";
+        }
+        if ($("#state3").prop("checked") == true) {
+            st = "异常";
+        }
+        console.log(st);
+        var page = location.href.split('=')[1];
+        $.ajax({
+            url: '/kq/Show/?page=' + page,
+            data: { state: st, ctime: $("#ctime").val(), ttime: $("#ttime").val() },
+            type: 'post',
+            success: function (res) {
+                console.log(res);
+                var html = "";
+                $(res.data).each(function (i, v) {
+                    html += "<tr>" +
+                        "<td>" + v.state + "</td>" +
+                        "<td>" + v.bm + "</td>" +
+                        "<td>" + v.gh + "</td>" +
+                        "<td>" + v.name + "</td>" +
+                        "<td>" + v.ctime + "</td>" +
+                        "<td>" + v.ttime + "</td>" +
+                        "<td>" + v.bz + "</td>" +
+                        "</tr>";
+                })
+                $("#tb").html(html);
+                $("#ye").empty();
+                for (var i = 1; i <= res.last; i++) {
+                    //$("#ye").append('<a href="javascript:" onclick="/kq/Show/?page=' + i + '">' + i + '</a>');
+                    $("#ye").append('<a href="/kq/index?page=' + i + '">'+i+'</a>');
+                }
+            }
+        })
+    }
+    function cha() {
+        show();
+    }
+</script>
